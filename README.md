@@ -20,10 +20,19 @@ git clone https://github.com/mirai-toto/browser-tools.git ~/Personal/GitHub/brow
 ```
 
 [linux-setup](https://github.com/mirai-toto/linux-setup) clones the repo next to
-its own checkout and runs `install.sh` automatically. The installer links
-`~/.local/bin/btools` and runs `btools setup`. Re-run `btools setup` to repair
-an installation. Pass `--client opencode` or `--client claude` to the installer
-to register with only one client.
+its own checkout and runs `install.sh` unattended for both clients: Playwright
+on Linux, plus Windows Chrome on WSL. On a terminal, the installer prompts for
+OpenCode, Claude Code, or both, and Playwright, Chrome, or both. It links
+`~/.local/bin/btools` and sets up the selected browser servers.
+
+For an unattended install, provide both choices explicitly:
+
+```sh
+./install.sh --non-interactive --client both --browser both  # WSL
+./install.sh --non-interactive --client both --browser playwright  # Linux
+```
+
+Use `btools setup` or `btools setup:chrome` to repair an individual server.
 
 `setup` installs locked dependencies, downloads matching Chromium, runs the local
 smoke test, and registers `playwright` globally with every installed client:
@@ -56,12 +65,15 @@ registered with each installed client.
 
 ## Windows Chrome (existing tabs and logins)
 
-Install the official [Playwright Extension](https://chromewebstore.google.com/detail/playwright-extension/mmlmfjhmonkocbjadbfplnigmagldckm)
-in Windows Chrome, then run from WSL:
+From WSL, run this if Chrome was not selected during installation:
 
 ```sh
 btools setup:chrome
 ```
+
+Setup does not need Chrome to be open. To connect later, install the official
+[Playwright Extension](https://chromewebstore.google.com/detail/playwright-extension/mmlmfjhmonkocbjadbfplnigmagldckm)
+in Windows Chrome and approve access to the tabs you want to share.
 
 Setup requires x64 Windows. It installs a pinned portable Windows Node.js from
 nodejs.org, verifies its published SHA-256 checksum, and installs locked MCP

@@ -7,7 +7,7 @@
   "scripts": {
     "setup": "bash scripts/setup.sh",
     "setup:chrome": "bash scripts/setup-chrome.sh",
-    "test": "node tests/smoke-test.ts"
+    "test": "node tests/smoke-test.ts && bash tests/install.sh"
   },
   "dependencies": {
     "@playwright/mcp": "0.0.83",
