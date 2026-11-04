@@ -19,19 +19,19 @@ Options for setup, setup:chrome, and status:
 EOF
 }
 
-root="$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")"
+root="$(dirname -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")")"
 command="${1:-help}"
 if (( $# > 0 )); then
   shift
 fi
 
 case "$command" in
-  setup) exec bash "$root/setup.sh" "$@" ;;
-  setup:chrome) exec bash "$root/setup-chrome.sh" "$@" ;;
-  status) source "$root/register.sh"; select_clients "$@"; list_mcp ;;
+  setup) exec bash "$root/scripts/setup.sh" "$@" ;;
+  setup:chrome) exec bash "$root/scripts/setup-chrome.sh" "$@" ;;
+  status) source "$root/scripts/register.sh"; select_clients "$@"; list_mcp ;;
   test) exec npm --prefix "$root" test -- "$@" ;;
-  playwright) exec node "$root/mcp.ts" "$@" ;;
-  chrome) exec bash "$root/chrome.sh" "$@" ;;
+  playwright) exec node "$root/src/mcp.ts" "$@" ;;
+  chrome) exec bash "$root/scripts/chrome.sh" "$@" ;;
   help | -h | --help) usage ;;
   *)
     printf 'Unknown command: %s\n' "$command" >&2

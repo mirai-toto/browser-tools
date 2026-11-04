@@ -5,9 +5,9 @@
   "type": "module",
   "engines": { "node": ">=22.18.0" },
   "scripts": {
-    "setup": "bash setup.sh",
-    "setup:chrome": "bash setup-chrome.sh",
-    "test": "node smoke-test.ts"
+    "setup": "bash scripts/setup.sh",
+    "setup:chrome": "bash scripts/setup-chrome.sh",
+    "test": "node tests/smoke-test.ts"
   },
   "dependencies": {
     "@playwright/mcp": "0.0.83",

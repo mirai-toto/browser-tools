@@ -8,21 +8,27 @@
 Requires Node.js 22.18+ and npm. Dependencies are pinned in `package.json` and
 `package-lock.json`.
 
+`install.sh` is the entry point; `bin/btools` is the CLI, `scripts/` contains
+setup and launch helpers, `src/` contains the Playwright launcher, and `tests/`
+contains the smoke test.
+
 ## Install
 
 ```sh
 git clone https://github.com/mirai-toto/browser-tools.git ~/Personal/GitHub/browser-tools
-ln -sfn ~/Personal/GitHub/browser-tools/browser-tools ~/.local/bin/btools
-btools setup
+~/Personal/GitHub/browser-tools/install.sh
 ```
 
-[linux-setup](https://github.com/mirai-toto/linux-setup) does the clone and
-symlink automatically.
+[linux-setup](https://github.com/mirai-toto/linux-setup) clones the repo next to
+its own checkout and runs `install.sh` automatically. The installer links
+`~/.local/bin/btools` and runs `btools setup`. Re-run `btools setup` to repair
+an installation. Pass `--client opencode` or `--client claude` to the installer
+to register with only one client.
 
 `setup` installs locked dependencies, downloads matching Chromium, runs the local
 smoke test, and registers `playwright` globally with every installed client:
 OpenCode (`opencode mcp add --global`) and Claude Code (`claude mcp add --scope
-user`). Pass `--client opencode` or `--client claude` to register with only one.
+user`). Pass `--client opencode` or `--client claude` to `btools setup` to register with only one.
 Re-running repairs the installation and replaces only the same named MCP entry.
 
 `playwright` uses separate headless, isolated Chromium, not existing tabs or
@@ -72,7 +78,7 @@ Do not configure `PLAYWRIGHT_MCP_EXTENSION_TOKEN`: it bypasses approval. The
 launcher unsets it to retain manual approval. Screenshots and snapshots go to
 `%LOCALAPPDATA%\browser-tools\output`. If several profiles have the extension,
 Playwright uses the last-used one; add `--profile-dir-name "Profile 2"` to
-`chrome.sh` to select a profile (see `chrome://version`).
+`scripts/chrome.sh` to select a profile (see `chrome://version`).
 
 Re-run `setup:chrome` to repair or after dependency updates. Update
 `node-windows.version` explicitly when upgrading the Windows runtime.

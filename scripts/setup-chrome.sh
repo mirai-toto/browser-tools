@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-source "$root/chrome-path.sh"
-source "$root/register.sh"
+root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$root/scripts/chrome-path.sh"
+source "$root/scripts/register.sh"
 select_clients "$@"
 version="$(cat "$root/node-windows.version")"
 architecture="$(powershell.exe -NoProfile -NonInteractive -Command '[Console]::WriteLine($env:PROCESSOR_ARCHITECTURE)' | tr -d '\r')"
@@ -31,5 +31,5 @@ cp "$root/package.json" "$root/package-lock.json" "$chrome_root/"
 npm ci --prefix "$chrome_root" --ignore-scripts --no-bin-links
 "$runtime" --version
 "$runtime" "${windows_root}\\node_modules\\@playwright\\mcp\\cli.js" --version
-register_mcp chrome "$(command -v bash)" "$root/chrome.sh"
+register_mcp chrome "$(command -v bash)" "$root/scripts/chrome.sh"
 list_mcp

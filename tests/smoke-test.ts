@@ -5,7 +5,7 @@ import { mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { chromium, type Browser, type Page } from 'playwright';
 
-const output: string = fileURLToPath(new URL('./output/', import.meta.url));
+const output: string = fileURLToPath(new URL('../output/', import.meta.url));
 mkdirSync(output, { recursive: true });
 const server: Server = createServer((_request: IncomingMessage, response: ServerResponse): void => {
   response.setHeader('Content-Type', 'text/html; charset=utf-8');

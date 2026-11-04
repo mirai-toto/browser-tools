@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
-const root: string = fileURLToPath(new URL('.', import.meta.url));
+const root: string = fileURLToPath(new URL('../', import.meta.url));
 const output: string = `${root}output`;
 mkdirSync(output, { recursive: true });
 
