@@ -1,16 +1,12 @@
 # browser-tools
 
-`btools` sets up and tests browser MCP servers for OpenCode and Claude Code:
+`btools` sets up browser MCP servers for OpenCode and Claude Code:
 
-- `playwright`: separate headless, isolated Chromium.
-- `chrome`: existing Windows Chrome tabs and logins, from WSL.
+- **Playwright:** isolated, headless Chromium (no existing tabs or logins).
+- **Chrome:** your Windows Chrome tabs and logins, accessed from WSL. Requires
+  approval through the Playwright extension.
 
-Requires Node.js 22.18+ and npm. Dependencies are pinned in `package.json` and
-`package-lock.json`.
-
-`install.sh` is the entry point; `bin/btools` is the CLI, `scripts/` contains
-setup and launch helpers, `src/` contains the Playwright launcher, and `tests/`
-contains the smoke test.
+Requires Node.js 22.18+ and npm. Chrome also requires WSL with x64 Windows.
 
 ## Install
 
@@ -19,81 +15,68 @@ git clone https://github.com/mirai-toto/browser-tools.git ~/Personal/GitHub/brow
 ~/Personal/GitHub/browser-tools/install.sh
 ```
 
-[linux-setup](https://github.com/mirai-toto/linux-setup) clones the repo next to
-its own checkout and runs `install.sh` unattended for both clients: Playwright
-on Linux, plus Windows Chrome on WSL. On a terminal, the installer prompts for
-OpenCode, Claude Code, or both, and Playwright, Chrome, or both. It links
-`~/.local/bin/btools` and sets up the selected browser servers.
+The installer asks which clients (OpenCode, Claude Code, or both) and browsers
+(Playwright, Chrome, or both) to set up. It installs the `btools` command in
+`~/.local/bin` and registers the selected MCP servers. On Linux without WSL,
+only Playwright is available.
 
-For an unattended install, provide both choices explicitly:
-
-```sh
-./install.sh --non-interactive --client both --browser both  # WSL
-./install.sh --non-interactive --client both --browser playwright  # Linux
-```
-
-Use `btools setup` or `btools setup:chrome` to repair an individual server.
-
-`setup` installs locked dependencies, downloads matching Chromium, runs the local
-smoke test, and registers `playwright` globally with every installed client:
-OpenCode (`opencode mcp add --global`) and Claude Code (`claude mcp add --scope
-user`). Pass `--client opencode` or `--client claude` to `btools setup` to register with only one.
-Re-running repairs the installation and replaces only the same named MCP entry.
-
-`playwright` uses separate headless, isolated Chromium, not existing tabs or
-logins. The launcher resolves Chromium's path from Playwright, rather than
-hardcoding a revision. Downloads live in `~/.cache/ms-playwright`; screenshots
-and snapshots live in `output/`.
-
-If Linux browser libraries are missing, run
-`~/Personal/GitHub/browser-tools/node_modules/.bin/playwright install-deps chromium`
-(may require sudo). The browser sandbox stays enabled.
-
-## Test
+For unattended installs, specify both choices:
 
 ```sh
-btools test
-# Optional external website check:
-btools test https://opencode.ai
-btools status
+./install.sh --non-interactive --client both --browser both       # WSL
+./install.sh --non-interactive --client both --browser playwright # Linux
 ```
 
-The default test serves a local page and checks navigation, reading, typing,
-clicking, and screenshots without an external website. It closes the test browser
-afterward; MCP starts its own browser on demand. `status` lists the MCP servers
-registered with each installed client.
+[linux-setup](https://github.com/mirai-toto/linux-setup) runs this unattended for
+both clients: Playwright on Linux, and Playwright plus Chrome on WSL.
+
+## Check and repair
+
+```sh
+btools test                       # Test against a local page
+btools test https://opencode.ai   # Optional external site
+btools status                     # Show registered servers
+btools setup                      # Repair Playwright
+btools setup:chrome               # Repair Chrome (WSL only)
+```
+
+The local test checks navigation, reading, typing, clicking, and screenshots,
+then closes its browser. The MCP server starts a separate browser on demand.
+Setup commands reinstall dependencies and replace only their own MCP entries.
+Add `--client opencode` or `--client claude` to a setup command to register with
+just one client instead of every installed client.
 
 ## Windows Chrome (existing tabs and logins)
 
-From WSL, run this if Chrome was not selected during installation:
+If you did not select Chrome during installation, run this from WSL:
 
 ```sh
 btools setup:chrome
 ```
 
-Setup does not need Chrome to be open. To connect later, install the official
+Chrome need not be open during setup. To connect later, install the official
 [Playwright Extension](https://chromewebstore.google.com/detail/playwright-extension/mmlmfjhmonkocbjadbfplnigmagldckm)
-in Windows Chrome and approve access to the tabs you want to share.
+in Windows Chrome and approve the connection and tabs to share. **Only share
+tabs you need:** the agent can read private content and act as your logged-in
+account, and page content may reach your model provider. Disconnect in the
+extension when finished.
 
-Setup requires x64 Windows. It installs a pinned portable Windows Node.js from
-nodejs.org, verifies its published SHA-256 checksum, and installs locked MCP
-packages in `%LOCALAPPDATA%\browser-tools`. No admin installation, Windows PATH
-changes, Chrome remote-debugging flags, or extension token are needed. MCP uses
-standard input/output through WSL; no separate HTTP server is exposed.
+Do not set `PLAYWRIGHT_MCP_EXTENSION_TOKEN`; it bypasses approval. The launcher
+unsets it to retain manual approval. Chrome setup installs a verified, pinned
+portable Windows Node.js and locked MCP packages in
+`%LOCALAPPDATA%\browser-tools`; it needs no admin access, Windows PATH change,
+Chrome debugging flags, or separate HTTP server. Screenshots and snapshots go
+to `%LOCALAPPDATA%\browser-tools\output`.
 
-The second global MCP entry is `chrome`; `playwright` remains unchanged. Approve
-the connection in Chrome and share only the tabs needed for the task. The agent
-can read private content and act as your logged-in account; page content may
-reach your model provider. Disconnect through the extension when finished.
+With multiple Chrome profiles, Playwright uses the last-used profile with the
+extension. To choose another, add `--profile-dir-name "Profile 2"` to
+`scripts/chrome.sh` (check `chrome://version` for its name).
 
-Do not configure `PLAYWRIGHT_MCP_EXTENSION_TOKEN`: it bypasses approval. The
-launcher unsets it to retain manual approval. Screenshots and snapshots go to
-`%LOCALAPPDATA%\browser-tools\output`. If several profiles have the extension,
-Playwright uses the last-used one; add `--profile-dir-name "Profile 2"` to
-`scripts/chrome.sh` to select a profile (see `chrome://version`).
+## Troubleshooting
 
-Re-run `setup:chrome` to repair or after dependency updates. Update
-`node-windows.version` explicitly when upgrading the Windows runtime.
+If Linux browser libraries are missing, run
+`~/Personal/GitHub/browser-tools/node_modules/.bin/playwright install-deps chromium`
+(may require sudo). The browser sandbox stays enabled.
 
 ## Update dependencies
 
@@ -107,6 +90,7 @@ btools setup:chrome
 ```
 
 Commit both manifests for reproducible reinstalls.
+Update `node-windows.version` explicitly when upgrading the Windows runtime.
 
 ## Disconnect
 
